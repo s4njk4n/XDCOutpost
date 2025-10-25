@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XDC Transaction Compliance Checker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Fast XML Parser CDN -->
+    <script src="https://unpkg.com/fast-xml-parser@4.2.7/build/fxp.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #2E2A6A 0%, #4A3E8A 100%);
+            color: #F3E8FF;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(46, 42, 106, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 1rem;
+        }
+        @media (max-width: 640px) {
+            nav { padding: 0.75rem; }
+            .nav-items a { font-size: 0.9rem; }
+        }
+        #hero {
+            position: relative;
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            padding: 1rem;
+        }
+        @media (max-width: 640px) {
+            #hero {
+                min-height: 60vh;
+                padding: 2rem 1rem;
+            }
+            #hero h1 { font-size: 2.5rem; }
+            #hero p { font-size: 1rem; }
+        }
+        #background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+        }
+        #background::before,
+        #background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(ellipse at center, #A3E4FF 0%, #FFD1DC 50%, transparent 70%);
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5);
+            animation: cloudShimmer 10s ease-in-out infinite;
+        }
+        #background::after {
+            animation: cloudShimmerAlt 12s ease-in-out infinite 2s;
+        }
+        @keyframes cloudShimmer {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; left: 20%; top: 30%; }
+            50% { transform: translate(-40%, -60%) scale(1.2); opacity: 0.5; left: 60%; top: 70%; }
+            100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; left: 20%; top: 30%; }
+        }
+        @keyframes cloudShimmerAlt {
+            0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; left: 80%; top: 60%; }
+            50% { transform: translate(-60%, -40%) scale(1.1); opacity: 0.4; left: 30%; top: 20%; }
+            100% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; left: 80%; top: 60%; }
+        }
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #A3E4FF;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        @keyframes float {
+            0% { transform: translateY(0); opacity: 0.6; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-50px); opacity: 0.6; }
+        }
+        #hero > * { z-index: 1; }
+        .hover-effect {
+            transition: transform 0.4s ease, box-shadow 0.4s ease, color 0.4s ease;
+        }
+        .hover-effect:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 24px rgba(163, 228, 255, 0.2);
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(6px);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+        @media (max-width: 640px) {
+            .card { padding: 1rem; }
+            .card h3 { font-size: 1.5rem; }
+            .card p { font-size: 0.9rem; }
+        }
+        .pass { color: #6EE7B7; }
+        .fail { color: #FCA5A5; }
+        .error { color: #FFD1DC; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="py-6 px-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-[#F3E8FF] max-sm:text-xl">XDC Compliance Checker</h1>
+            <div class="nav-items space-x-8 max-sm:space-x-4">
+                <a href="#hero" class="text-[#F3E8FF] hover:text-[#A3E4FF] text-lg max-sm:text-sm">Home</a>
+                <a href="#services" class="text-[#F3E8FF] hover:text-[#A3E4FF] text-lg max-sm:text-sm">Services</a>
+                <a href="#contact" class="text-[#F3E8FF] hover:text-[#A3E4FF] text-lg max-sm:text-sm">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero">
+        <div id="background">
+            <div id="particles"></div>
+        </div>
+        <div class="max-w-5xl mx-auto p-6">
+            <h1 class="text-5xl md:text-5xl font-semibold text-[#F3E8FF] mb-4 max-sm:text-3xl tracking-tight">XDC Transaction Compliance Checker</h1>
+            <p class="text-xl md:text-2xl text-[#E2D1F9] mb-8 max-sm:text-base">Verify ISO 20022 compliance for XDC Network transactions with a single click. Ensure your trade finance payments meet global standards.</p>
+            <div class="card hover-effect max-w-md mx-auto">
+                <input type="text" id="txHash" placeholder="Enter XDC Transaction Hash" class="w-full p-3 rounded-lg bg-[#2E2A6A] text-[#F3E8FF] border border-[#A3E4FF]/30 focus:outline-none focus:border-[#A3E4FF] max-sm:text-sm">
+                <button onclick="checkCompliance()" class="mt-4 w-full bg-gradient-to-r from-[#A3E4FF] to-[#FFD1DC] text-[#2E2A6A] font-semibold py-3 px-6 rounded-full hover-effect max-sm:py-2 max-sm:text-sm">Check Compliance</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="py-20 px-6 hidden">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-center text-[#A3E4FF] mb-12 max-sm:text-2xl">Transaction Details</h2>
+            <div class="card hover-effect">
+                <table class="w-full text-left text-[#E2D1F9]">
+                    <thead>
+                        <tr>
+                            <th class="p-3 text-[#F3E8FF] font-semibold">Property</th>
+                            <th class="p-3 text-[#F3E8FF] font-semibold">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="txTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 px-6">
+        <div class="max-w-5xl mx-auto text-center">
+            <h2 class="text-4xl md:text-5xl font-bold text-[#A3E4FF] mb-12 max-sm:text-2xl">Connect</h2>
+            <p class="text-[#E2D1F9] mb-8 text-lg max-sm:text-sm">Questions about the Compliance Checker? Reach out on your preferred platform:</p>
+            <div class="social-links flex justify-center flex-wrap gap-8 max-sm:gap-4">
+                <a href="https://t.me/s4njk4n" target="_blank" class="social-icon text-3xl max-sm:text-xl" aria-label="Telegram">
+                    <i class="fa-brands fa-telegram"></i> <span class="text-lg max-sm:text-sm ml-2">Telegram: @s4njk4n</span>
+                </a>
+                <a href="https://discord.com/users/852434672793288724" target="_blank" class="social-icon text-3xl max-sm:text-xl" aria-label="Discord">
+                    <i class="fa-brands fa-discord"></i> <span class="text-lg max-sm:text-sm ml-2">Discord: @s4njk4n</span>
+                </a>
+                <a href="https://x.com/s4njk4n" target="_blank" class="social-icon text-3xl max-sm:text-xl" aria-label="X">
+                    <i class="fa-brands fa-x-twitter"></i> <span class="text-lg max-sm:text-sm ml-2">X: @s4njk4n</span>
+                </a>
+                <a href="https://github.com/s4njk4n" target="_blank" class="social-icon text-3xl max-sm:text-xl" aria-label="GitHub">
+                    <i class="fa-brands fa-github"></i> <span class="text-lg max-sm:text-sm ml-2">GitHub: s4njk4n</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-10 px-6 text-center text-[#D4C2F0]">
+        <p class="max-sm:text-sm">© 2025 XDC Compliance Checker. All rights reserved. Powered by <a href="https://github.com/s4njk4n" target="_blank" class="text-[#A3E4FF] hover:underline">s4njk4n</a>.</p>
+    </footer>
+
+    <script>
+        // Particle animation
+        const particlesContainer = document.getElementById('particles');
+        function initParticles() {
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animation = `float ${5 + Math.random() * 3}s infinite`;
+                particlesContainer.appendChild(particle);
+            }
+        }
+        initParticles();
+
+        // Randomize cloud shimmer
+        function randomizeClouds() {
+            const durations = [8, 10, 12, 14];
+            const delays = [0, 1, 2, 3];
+            document.querySelector('#background').style.setProperty('--cloud1-left', `${20 + Math.random() * 60}%`);
+            document.querySelector('#background').style.setProperty('--cloud2-left', `${20 + Math.random() * 60}%`);
+            document.querySelector('#background').style.setProperty('--cloud1-top', `${20 + Math.random() * 60}%`);
+            document.querySelector('#background').style.setProperty('--cloud2-top', `${20 + Math.random() * 60}%`);
+            document.querySelector('#background').style.setProperty('--cloud1-duration', `${durations[Math.floor(Math.random() * durations.length)]}s`);
+            document.querySelector('#background').style.setProperty('--cloud2-duration', `${durations[Math.floor(Math.random() * durations.length)]}s`);
+            document.querySelector('#background').style.setProperty('--cloud1-delay', `${delays[Math.floor(Math.random() * delays.length)]}s`);
+            document.querySelector('#background').style.setProperty('--cloud2-delay', `${delays[Math.floor(Math.random() * delays.length)]}s`);
+        }
+        randomizeClouds();
+        setInterval(randomizeClouds, 10000);
+
+        // Compliance check
+        async function checkCompliance() {
+            const txHash = document.getElementById('txHash').value.trim();
+            if (!txHash.match(/^0x[a-fA-F0-9]{64}$/)) {
+                alert('Invalid transaction hash');
+                return;
+            }
+
+            const resultsSection = document.getElementById('results');
+            const table = document.getElementById('txTable');
+            table.innerHTML = '';
+            resultsSection.classList.remove('hidden');
+
+            try {
+                // Fetch transaction data
+                const response = await fetch(`https://xdc.blocksscan.io/api/v2/transactions/${txHash}`);
+                if (!response.ok) throw new Error('Transaction not found');
+                const tx = await response.json();
+
+                // ISO 20022 schema
+                const isoSchema = {
+                    required: ['PmtInf.RmtInf.Ustrd'],
+                    optional: ['Dbtr.Nm', 'Cdtr.Nm', 'PmtInf.PmtTpInf']
+                };
+                let complianceStatus = 'Fail';
+                let complianceDetails = [];
+                let foundFields = [];
+
+                // Parse input data
+                const inputData = tx.input || '0x';
+                if (inputData !== '0x') {
+                    const decodedInput = hexToString(inputData);
+                    const parser = new fxp.XMLParser({ ignoreAttributes: false, parseTagValue: true });
+                    let xmlData;
+                    try {
+                        xmlData = parser.parse(decodedInput);
+                    } catch {
+                        complianceDetails.push('Invalid XML in transaction input');
+                    }
+
+                    if (xmlData) {
+                        const flatData = flattenObject(xmlData);
+                        foundFields = Object.keys(flatData).filter(key => 
+                            isoSchema.required.includes(key) || isoSchema.optional.includes(key)
+                        );
+
+                        const hasRequired = isoSchema.required.every(field => flatData[field]);
+                        complianceStatus = hasRequired ? 'Pass' : foundFields.length > 0 ? 'Partial' : 'Fail';
+                        isoSchema.required.forEach(field => {
+                            complianceDetails.push(`${field}: ${flatData[field] ? 'Found' : 'Missing'}`);
+                        });
+                        isoSchema.optional.forEach(field => {
+                            if (flatData[field]) complianceDetails.push(`${field}: Found`);
+                        });
+                    }
+                } else {
+                    complianceDetails.push('No metadata in transaction input');
+                }
+
+                // Convert value to XDC
+                const valueXDC = (parseInt(tx.value) / 1e18).toFixed(6);
+
+                // Populate table
+                const rows = [
+                    { prop: 'Hash', val: tx.hash },
+                    { prop: 'From', val: tx.from },
+                    { prop: 'To', val: tx.to || 'Contract Creation' },
+                    { prop: 'Value (XDC)', val: valueXDC },
+                    { prop: 'Timestamp', val: new Date(tx.timestamp).toLocaleString() },
+                    { prop: 'ISO 20022 Compliance', val: `<span class="${complianceStatus.toLowerCase()}">${complianceStatus}</span>` },
+                    { prop: 'Compliance Details', val: complianceDetails.join('<br>') }
+                ];
+
+                rows.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td class="p-3">${row.prop}</td><td class="p-3">${row.val}</td>`;
+                    table.appendChild(tr);
+                });
+
+                // Scroll to results
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="p-3">Error</td><td class="p-3 error">${error.message}</td>`;
+                table.appendChild(tr);
+            }
+        }
+
+        // Hex to string decoder
+        function hexToString(hex) {
+            try {
+                hex = hex.replace('0x', '');
+                let str = '';
+                for (let i = 0; i < hex.length; i += 2) {
+                    str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+                }
+                return str.replace(/[^ -~]/g, '');
+            } catch {
+                return '';
+            }
+        }
+
+        // Flatten nested object
+        function flattenObject(obj, parent = '', res = {}) {
+            for (let key in obj) {
+                const propName = parent ? `${parent}.${key}` : key;
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    flattenObject(obj[key], propName, res);
+                } else {
+                    res[propName] = obj[key];
+                }
+            }
+            return res;
+        }
+    </script>
+</body>
+</html>
