@@ -223,7 +223,7 @@
     @media (min-width: 768px) {
       .services-grid {
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto auto auto;
+        grid-template-rows: auto auto auto auto auto;
       }
       .services-grid .card:nth-child(1) {
         grid-row: 1 / 2;
@@ -251,6 +251,14 @@
       }
       .services-grid .card:nth-child(7) {
         grid-row: 4 / 5;
+        grid-column: 1 / 2;
+      }
+      .services-grid .card:nth-child(8) {
+        grid-row: 4 / 5;
+        grid-column: 2 / 3;
+      }
+      .services-grid .card:nth-child(9) {
+        grid-row: 5 / 6;
         grid-column: 1 / 2;
       }
     }
@@ -375,6 +383,13 @@
           <a href="https://s4njk4n.github.io/XDC_Send_Offline_Helper/" target="_blank" class="inline-block bg-gradient-to-r from-[#A3E4FF] to-[#FFD1DC] text-[#2E2A6A] font-semibold py-3 px-6 rounded-full hover-effect max-sm:py-2 max-sm:px-4 max-sm:text-xs">Get Started</a>
         </div>
         <div class="card hover-effect">
+          <h3 class="text-3xl font-semibold text-[#F3E8FF] mb-6 max-sm:text-xl">XDC Masternode Rewards Calculator</h3>
+          <p class="text-[#E2D1F9] mb-6 text-lg max-sm:text-sm">Calculate inferred masternode rewards on the XDC Network for a given address and time period.</p>
+          <div class="features mb-6"></div>
+          <p class="text-sm text-[#D4C2F0] mb-4 max-sm:text-xs">Easily compute your masternode earnings.</p>
+          <a href="https://s4njk4n.github.io/XDC_Masternode_Rewards_Calculator/" target="_blank" class="inline-block bg-gradient-to-r from-[#A3E4FF] to-[#FFD1DC] text-[#2E2A6A] font-semibold py-3 px-6 rounded-full hover-effect max-sm:py-2 max-sm:px-4 max-sm:text-xs">Get Started</a>
+        </div>
+        <div class="card hover-effect">
           <h3 class="text-3xl font-semibold text-[#F3E8FF] mb-6 max-sm:text-xl">Private XDC Full Node RPC/WSS</h3>
           <p class="text-[#E2D1F9] mb-6 text-lg max-sm:text-sm">Access our private XDC full nodes for RPC and WebSocket connections. Our nodes are helping bootstrap the backend of a commercial RPC provider on the network. Stay tuned for more on this.</p>
           <div class="features mb-6"></div>
@@ -476,3 +491,4 @@
     setInterval(updateLastChecked, 60000); // Update every minute
   </script>
 </body>
+</html>
